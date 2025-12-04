@@ -5,6 +5,37 @@
 <title>Dashboard</title>
 
 <style>
+/* Smooth fade-in for all content updates */
+.fade-in {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Panels fade-in on load */
+.panel {
+    opacity: 0;
+    animation: panelFade 1s ease forwards;
+}
+@keyframes panelFade {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Weather icon soft fade */
+#weatherIcon svg {
+    opacity: 0;
+    animation: fadeWeatherIcon 0.6s ease forwards;
+}
+@keyframes fadeWeatherIcon {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
     :root {
         --bg-light: #d9e4ef;
         --bg-dark: #050814;
@@ -29,7 +60,7 @@
         background: var(--bg-dark);
     }
 
-    /* ---- TOP BAR (Time + Weather + Forecast) ---- */
+    /* ---- TOP BAR ---- */
     #top {
         width: 100%;
         background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1350&q=80") center/cover no-repeat;
@@ -37,17 +68,9 @@
         box-sizing: border-box;
         color: white;
         text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-        position: relative;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        gap: 24px;
-    }
-
-    #topLeft {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
     }
 
     #clock {
@@ -67,10 +90,6 @@
         align-items: flex-start;
     }
 
-    #weatherBox {
-        text-align: right;
-    }
-
     #weatherTemp {
         font-size: 2.4em;
         font-weight: 600;
@@ -81,11 +100,7 @@
         text-transform: capitalize;
     }
 
-    #weatherIcon {
-        margin-bottom: 4px;
-    }
-
-    /* animated main icon */
+    /* animated weather icon */
     #weatherIcon svg {
         width: 60px;
         height: 60px;
@@ -117,39 +132,29 @@
 
     .forecast-row {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 6px;
         margin-bottom: 4px;
+        align-items: center;
     }
 
     .forecast-day {
         font-weight: 600;
     }
 
-    .forecast-temp {
-        opacity: 0.9;
-    }
-
     .mini-icon {
-        width: 22px;
-        text-align: center;
-        display: inline-block;
-        margin-right: 4px;
         animation: floatMini 3s ease-in-out infinite;
     }
+
     @keyframes floatMini {
-        0%,100% { transform: translateY(0); opacity: 0.9; }
-        50%     { transform: translateY(-2px); opacity: 1; }
+        0%,100% { transform: translateY(0); }
+        50%     { transform: translateY(-2px); }
     }
 
-    /* ---- MAIN GRID ---- */
     #main {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
         padding: 15px;
-        box-sizing: border-box;
     }
 
     .panel {
@@ -157,9 +162,8 @@
         backdrop-filter: blur(8px);
         border-radius: 12px;
         padding: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         height: 80vh;
-        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         display: flex;
         flex-direction: column;
     }
@@ -169,18 +173,9 @@
     }
 
     .panel h2 {
-        font-size: 1.4em;
-        margin: 0 0 10px 0;
-        padding-bottom: 8px;
+        margin: 0 0 10px;
         border-bottom: 1px solid rgba(255,255,255,0.25);
-        font-weight: 500;
-    }
-
-    .panel-content {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        flex: 1;
+        padding-bottom: 8px;
     }
 
     iframe {
@@ -188,23 +183,15 @@
         width: 100%;
         flex: 1;
         border-radius: 8px;
-        background: #0a162c;
-    }
-
-    body.theme-dark iframe {
-        background: #020714;
     }
 </style>
 </head>
 
 <body class="theme-light">
 
-<!-- ===================== -->
-<!-- TOP: CLOCK + WEATHER  -->
-<!-- ===================== -->
-
+<!-- TOP BAR (Clock + Weather + Forecast) -->
 <div id="top">
-    <div id="topLeft">
+    <div>
         <div id="clock">--:--</div>
         <div id="date">Loading date…</div>
     </div>
@@ -219,138 +206,74 @@
         <div id="forecastSidebar">
             <div style="font-weight:700;margin-bottom:4px;">Forecast</div>
             <div id="forecastRows">
-                <div class="forecast-row"><span class="forecast-day">---</span></div>
+                <div class="forecast-row"><span>---</span></div>
             </div>
         </div>
     </div>
 </div>
 
-
-<!-- ===================== -->
-<!--   MAIN 2-COLUMN GRID  -->
-<!-- ===================== -->
-
 <div id="main">
 
-    <!-- LEFT COLUMN: TRANSIT -->
     <div class="panel">
         <h2>Transit (Bus / PATH / Light Rail)</h2>
-        <div class="panel-content">
-            <iframe id="bus" src="https://dv.njtransit.com/#/bus/trips?stop=21352"></iframe>
-            <iframe id="path" src="https://citymapper.com/nyc/path/stations/exchange-place-path"></iframe>
-            <iframe id="lrt" src="https://dv.njtransit.com/#/lightrail/trips?route=HBLR&stop=TONELAVE"></iframe>
-        </div>
+        <iframe id="bus" src="https://dv.njtransit.com/#/bus/trips?stop=21352"></iframe>
+        <iframe id="path" src="https://citymapper.com/nyc/path/stations/exchange-place-path"></iframe>
+        <iframe id="lrt" src="https://dv.njtransit.com/#/lightrail/trips?route=HBLR&stop=TONELAVE"></iframe>
     </div>
 
-    <!-- RIGHT COLUMN: GOOGLE CALENDAR -->
     <div class="panel">
         <h2>Upcoming Events</h2>
-        <div class="panel-content">
-            <iframe
-                style="width:100%; height:100%; border:none; border-radius:8px;"
-                src="https://calendar.google.com/calendar/embed?src=r1174onu9evdmkccn0u9e52snjeu5f7l%40import.calendar.google.com&ctz=America%2FNew_York&mode=AGENDA&showTitle=0&showNav=0&showTabs=0&showCalendars=0&showPrint=0&bgcolor=%23143C78">
-            </iframe>
-        </div>
+        <iframe src="https://calendar.google.com/calendar/embed?src=r1174onu9evdmkccn0u9e52snjeu5f7l%40import.calendar.google.com&ctz=America%2FNew_York&mode=AGENDA&showTitle=0&showNav=0&showTabs=0&showCalendars=0&showPrint=0&bgcolor=%23143C78"></iframe>
     </div>
 
 </div>
 
-
-<!-- ===================== -->
-<!-- JAVASCRIPT LOGIC      -->
-<!-- ===================== -->
-
 <script>
-const API_KEY = "c7ca510710b08b51215791ed290d958a";
-const LAT = 40.78467;
-const LON = -74.03010;
-
-/* THEME: LIGHT BY DAY, DARK BY NIGHT */
+/* ========================================================= */
+/* THEME */
+/* ========================================================= */
 function applyTheme() {
-    const hour = new Date().getHours(); // local time
-    const body = document.body;
-    body.classList.remove("theme-light", "theme-dark");
-    if (hour >= 7 && hour < 19) {
-        body.classList.add("theme-light");
-    } else {
-        body.classList.add("theme-dark");
-    }
+    const hour = new Date().getHours();
+    document.body.className = (hour >= 7 && hour < 19) ? "theme-light" : "theme-dark";
 }
 applyTheme();
-setInterval(applyTheme, 10 * 60 * 1000); // re-check every 10 min
+setInterval(applyTheme, 600000);
 
+/* ========================================================= */
 /* CLOCK */
+/* ========================================================= */
 function updateClock() {
     const now = new Date();
     document.getElementById("clock").innerText =
-        now.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"});
-
+        now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
     document.getElementById("date").innerText =
-        now.toLocaleDateString("en-US", {
-            weekday:"long",
-            month:"long",
-            day:"numeric"
-        });
+        now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-/* WEATHER + FORECAST */
+/* ========================================================= */
+/* WEATHER (Open-Meteo FREE API) */
+/* ========================================================= */
+const LAT = 40.78467;
+const LON = -74.03010;
+
 function iconSvg(main) {
-    // Simple animated sun / cloud / rain variants
-    main = (main || "").toLowerCase();
-    if (main.includes("rain") || main.includes("drizzle")) {
-        return `
-        <svg viewBox="0 0 64 64">
-          <defs>
-            <linearGradient id="rainGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#8ec5fc"/>
-              <stop offset="100%" stop-color="#3b82f6"/>
-            </linearGradient>
-          </defs>
-          <g>
-            <ellipse cx="26" cy="28" rx="16" ry="10" fill="#e5e7eb"/>
-            <ellipse cx="40" cy="30" rx="14" ry="9" fill="#d1d5db"/>
-            <line x1="22" y1="38" x2="18" y2="50" stroke="url(#rainGrad)" stroke-width="3" stroke-linecap="round">
-              <animate attributeName="y1" values="38;42;38" dur="1.2s" repeatCount="indefinite"/>
-              <animate attributeName="y2" values="50;54;50" dur="1.2s" repeatCount="indefinite"/>
-            </line>
-            <line x1="32" y1="38" x2="28" y2="50" stroke="url(#rainGrad)" stroke-width="3" stroke-linecap="round">
-              <animate attributeName="y1" values="38;43;38" dur="1.3s" repeatCount="indefinite"/>
-              <animate attributeName="y2" values="50;55;50" dur="1.3s" repeatCount="indefinite"/>
-            </line>
-          </g>
-        </svg>`;
-    }
+    main = main.toLowerCase();
+
     if (main.includes("cloud")) {
-        return `
-        <svg viewBox="0 0 64 64">
-          <g>
-            <ellipse cx="26" cy="30" rx="16" ry="10" fill="#e5e7eb">
-              <animate attributeName="cx" values="24;28;24" dur="4s" repeatCount="indefinite"/>
-            </ellipse>
-            <ellipse cx="40" cy="32" rx="14" ry="9" fill="#d1d5db">
-              <animate attributeName="cx" values="38;42;38" dur="5s" repeatCount="indefinite"/>
-            </ellipse>
-          </g>
+        return `<svg viewBox="0 0 64 64">
+            <ellipse cx="30" cy="32" rx="20" ry="12" fill="#d1d5db"/>
         </svg>`;
     }
-    if (main.includes("snow")) {
-        return `
-        <svg viewBox="0 0 64 64">
-          <g stroke="#e5f0ff" stroke-width="2" stroke-linecap="round">
-            <circle cx="24" cy="24" r="2" fill="#e5f0ff">
-              <animate attributeName="cy" values="18;30;18" dur="2s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="36" cy="28" r="2" fill="#e5f0ff">
-              <animate attributeName="cy" values="20;34;20" dur="2.3s" repeatCount="indefinite"/>
-            </circle>
-          </g>
+    if (main.includes("rain")) {
+        return `<svg viewBox="0 0 64 64">
+            <ellipse cx="30" cy="28" rx="18" ry="10" fill="#d1d5db"/>
+            <line x1="24" y1="40" x2="24" y2="52" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
         </svg>`;
     }
-    // default: sun
-    return `
-    <svg viewBox="0 0 64 64">
+
+    return `<svg viewBox="0 0 64 64">
       <circle class="sun-core" cx="32" cy="32" r="12"/>
       <g class="sun-rays">
         <line x1="32" y1="8" x2="32" y2="0"/>
@@ -365,90 +288,82 @@ function iconSvg(main) {
     </svg>`;
 }
 
-function miniIcon(main) {
-    main = (main || "").toLowerCase();
-    if (main.includes("rain") || main.includes("drizzle")) return "🌧";
-    if (main.includes("snow")) return "❄️";
-    if (main.includes("storm")) return "⛈";
-    if (main.includes("cloud")) return "☁️";
-    if (main.includes("mist") || main.includes("fog")) return "🌫";
+function weatherName(code) {
+    const map = {
+        0: "Clear", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Cloudy",
+        45: "Fog", 48: "Mist",
+        51: "Drizzle", 53: "Drizzle", 55: "Drizzle",
+        61: "Rain", 63: "Rain", 65: "Heavy Rain",
+        71: "Snow", 73: "Snow", 75: "Heavy Snow",
+        95: "Thunderstorm", 96: "Thunderstorm", 99: "Thunderstorm"
+    };
+    return map[code] || "Weather";
+}
+
+function miniIcon(code) {
+    if (code === 0) return "☀️";
+    if ([1,2].includes(code)) return "🌤️";
+    if (code === 3) return "☁️";
+    if ([45,48].includes(code)) return "🌫️";
+    if ([51,53,55,61,63,65].includes(code)) return "🌧️";
+    if ([71,73,75].includes(code)) return "❄️";
+    if ([95,96,99].includes(code)) return "⛈️";
     return "☀️";
 }
 
 async function loadWeatherAndForecast() {
     try {
-        const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${LAT}&lon=${LON}&units=imperial&appid=${API_KEY}`;
-        const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${LAT}&lon=${LON}&exclude=minutely,hourly,alerts&units=imperial&appid=${API_KEY}`;
+const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=auto`;
 
-        const [currentRes, forecastRes] = await Promise.all([
-            fetch(currentUrl),
-            fetch(forecastUrl)
-        ]);
 
-        const current = await currentRes.json();
-        const forecast = await forecastRes.json();
+        const res = await fetch(url);
+        const data = await res.json();
 
-        // current
-        const temp = Math.round(current.main.temp);
-        const desc = current.weather[0].description;
-        const main = current.weather[0].main;
+        /* ---- CURRENT ---- */
+        document.getElementById("weatherTemp").innerText =
+            Math.round(data.current_weather.temperature) + "°F";
 
-        document.getElementById("weatherTemp").innerText = `${temp}°F`;
+        const desc = weatherName(data.current_weather.weathercode);
         document.getElementById("weatherDesc").innerText = desc;
-        document.getElementById("weatherIcon").innerHTML = iconSvg(main);
+        document.getElementById("weatherIcon").innerHTML = iconSvg(desc);
 
-        // forecast: next 5 days (skip today, start from index 1)
-     // Make sure daily exists
-if (!forecast.daily || !Array.isArray(forecast.daily)) {
-    console.log("⚠️ No daily forecast returned:", forecast);
-    document.getElementById("forecastRows").innerHTML = `
-        <div class="forecast-row">
-            <span style="opacity:0.7;">No forecast available</span>
-        </div>`;
-    return;
-}
-
-// Extract next 5 days (skip today)
-const rows = forecast.daily.slice(1, 6).map(d => {
-    const date = new Date(d.dt * 1000);
-    return {
-        day: date.toLocaleDateString("en-US", { weekday: "short" }),
-        hi: Math.round(d.temp.max),
-        lo: Math.round(d.temp.min),
-        icon: miniIcon(d.weather[0].main)
-    };
-});
-
-// Render forecast rows
-document.getElementById("forecastRows").innerHTML = rows.map(r => `
-    <div class="forecast-row">
-        <span class="forecast-day">${r.day}</span>
-        <span class="mini-icon">${r.icon}</span>
-        <span class="forecast-temp">${r.hi}° / ${r.lo}°</span>
-    </div>
-`).join("");
+        /* ---- FORECAST ---- */
+        const rows = data.daily.time.slice(1,6).map((d,i)=>{
+            return `
+              <div class="forecast-row">
+                  <span class="forecast-day">
+                      ${new Date(d).toLocaleDateString("en-US",{weekday:"short"})}
+                  </span>
+                  <span class="mini-icon">${miniIcon(data.daily.weathercode[i+1])}</span>
+                  <span class="forecast-temp">
+                      ${Math.round(data.daily.temperature_2m_max[i+1])}° /
+                      ${Math.round(data.daily.temperature_2m_min[i+1])}°
+                  </span>
+              </div>`;
+        }).join("");
 
         const container = document.getElementById("forecastRows");
-        container.innerHTML = rows.map(r => `
-            <div class="forecast-row">
-                <span class="forecast-day">${r.day}</span>
-                <span class="mini-icon">${r.icon}</span>
-                <span class="forecast-temp">${r.hi}° / ${r.lo}°</span>
-            </div>
-        `).join("");
+container.classList.remove("show");
+container.innerHTML = rows;
+setTimeout(() => container.classList.add("show"), 50);
+
+
 
     } catch (err) {
-        console.log("Weather/forecast error:", err);
+        console.log("Weather error:", err);
+        document.getElementById("forecastRows").innerHTML =
+            `<div class="forecast-row"><span>No forecast</span></div>`;
     }
 }
 loadWeatherAndForecast();
-setInterval(loadWeatherAndForecast, 10 * 60 * 1000); // every 10 min
+setInterval(loadWeatherAndForecast, 600000);
 
-/* REFRESH TRANSIT IFRAMES */
+/* ========================================================= */
+/* AUTO-REFRESH TRANSIT */
+/* ========================================================= */
 setInterval(() => bus.contentWindow.location.reload(), 60000);
 setInterval(() => path.contentWindow.location.reload(), 120000);
 setInterval(() => lrt.contentWindow.location.reload(), 300000);
-
 </script>
 
 </body>
