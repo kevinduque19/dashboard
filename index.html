@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vertical Dashboard</title>
+<title>Commute Dashboard</title>
 
 <style>
 :root {
@@ -14,94 +14,72 @@
 }
 
 body {
-    margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
     background: var(--bg-light);
     color: var(--text-main);
     transition: background 0.6s ease;
     overflow: hidden;
-    width:1080px;
-    height:1920px;
 }
 
-/* DARK THEME */
-body.theme-dark { background: var(--bg-dark); }
+body.theme-dark {
+    background: var(--bg-dark);
+}
 
-/* TOP BAR */
+/* ===== TOP BAR ===== */
 #top {
     background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1350&q=80") center/cover no-repeat;
-    padding: 20px;
+    padding: 24px 32px;
     display: flex;
-    flex-direction: column;
-    text-align: center;
+    justify-content: space-between;
+    color: white;
     text-shadow: 0 1px 6px rgba(0,0,0,0.5);
 }
 
 #clock { font-size: 4em; font-weight: 300; }
 #date { font-size: 1.5em; margin-top: -6px; }
-
-#topRight {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
-}
+#topRight { display: flex; gap: 20px; align-items: flex-start; }
 
 #weatherBox { text-align: center; }
-#weatherTemp { font-size: 2em; font-weight: 600; }
-#weatherIcon svg { width: 60px; height: 60px; opacity:0; animation: fadeWeather 0.8s forwards; }
+#weatherTemp { font-size: 2.2em; font-weight: 600; }
+#weatherIcon svg { width: 60px; height: 60px; opacity: 0; animation: fadeWeather 0.6s ease forwards; }
+@keyframes fadeWeather { from { opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
 .sun-rays { stroke:#ffcc33; stroke-width:2; stroke-linecap:round; animation: spinSun 18s linear infinite; transform-origin:32px 32px; }
-
-@keyframes fadeWeather { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
 @keyframes spinSun { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
-/* FORECAST */
 #forecastSidebar {
     background: rgba(0,0,0,0.25);
-    padding: 8px;
+    padding: 10px;
     border-radius: 10px;
     backdrop-filter: blur(6px);
     font-size: 0.85em;
+    min-width: 160px;
 }
 
-/* MAIN PANELS */
+.forecast-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
 #main {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
-    padding: 10px;
-    height: calc(100% - 250px); /* leave space for top bar */
-    overflow-y: auto;
+    padding: 15px;
+    height: calc(100vh - 170px);
 }
 
 .panel {
     background: var(--panel-light);
     backdrop-filter: blur(8px);
     border-radius: 12px;
-    padding: 10px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    flex: 1;
 }
 
 body.theme-dark .panel { background: var(--panel-dark); }
+.panel h2 { margin:0 0 10px; border-bottom:1px solid rgba(255,255,255,0.25); padding-bottom:8px; }
 
-.panel h2 { margin:0 0 10px; border-bottom:1px solid rgba(255,255,255,0.25); padding-bottom:5px; font-size:1.3em; }
-
-iframe {
-    border:none;
-    width:100%;
-    flex:1;
-    border-radius:6px;
-    background:transparent !important;
-    overflow:hidden;
-}
-
-/* PANEL FADE */
-.panel { opacity:0; transform: translateY(10px); animation: panelFade 1s forwards; }
-@keyframes panelFade { to{opacity:1; transform:translateY(0);} }
-
+iframe { border:none; width:100%; flex:1; border-radius:8px; background:transparent !important; overflow:hidden; }
 </style>
 </head>
 
@@ -109,8 +87,10 @@ iframe {
 
 <!-- TOP BAR -->
 <div id="top">
-    <div id="clock">--:--</div>
-    <div id="date">Loading…</div>
+    <div>
+        <div id="clock">--:--</div>
+        <div id="date">Loading…</div>
+    </div>
     <div id="topRight">
         <div id="weatherBox">
             <div id="weatherIcon"></div>
@@ -124,7 +104,7 @@ iframe {
     </div>
 </div>
 
-<!-- PANELS -->
+<!-- MAIN GRID -->
 <div id="main">
     <div class="panel">
         <h2>Transit (Bus / PATH / Light Rail)</h2>
@@ -144,44 +124,39 @@ iframe {
 /* THEME */
 function applyTheme() {
     const hour = new Date().getHours();
-    document.body.className = (hour>=7 && hour<19) ? "theme-light" : "theme-dark";
+    document.body.className = (hour >= 7 && hour < 19) ? "theme-light" : "theme-dark";
 }
 applyTheme();
-setInterval(applyTheme,600000);
+setInterval(applyTheme, 600000);
 
 /* CLOCK */
-function updateClock(){
-    const now=new Date();
-    document.getElementById("clock").innerText=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
-    document.getElementById("date").innerText=now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").innerText = now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+    document.getElementById("date").innerText = now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
 }
 updateClock();
 setInterval(updateClock,1000);
 
 /* WEATHER */
-const LAT=40.78467,LON=-74.03010;
-function iconSvg(main){
-    main=main.toLowerCase();
-    if(main.includes("cloud")) return `<svg viewBox="0 0 64 64"><ellipse class="cloud" cx="30" cy="32" rx="20" ry="12"/></svg>`;
-    if(main.includes("rain")) return `<svg viewBox="0 0 64 64"><ellipse class="cloud" cx="30" cy="28" rx="18" ry="10"/><line class="rain" x1="24" y1="40" x2="24" y2="52"/></svg>`;
+const LAT = 40.78467, LON=-74.03010;
+
+function iconSvg(main) {
+    main = main.toLowerCase();
+    if(main.includes("cloud")) return `<svg viewBox="0 0 64 64"><ellipse cx="30" cy="32" rx="20" ry="12" fill="#d1d5db"/></svg>`;
+    if(main.includes("rain")) return `<svg viewBox="0 0 64 64"><ellipse cx="30" cy="28" rx="18" ry="10" fill="#d1d5db"/><line x1="24" y1="40" x2="24" y2="52" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/></svg>`;
     return `<svg viewBox="0 0 64 64"><circle class="sun-core" cx="32" cy="32" r="12"/><g class="sun-rays"><line x1="32" y1="8" x2="32" y2="0"/><line x1="32" y1="64" x2="32" y2="56"/><line x1="8" y1="32" x2="0" y2="32"/><line x1="64" y1="32" x2="56" y2="32"/><line x1="12" y1="12" x2="6" y2="6"/><line x1="52" y1="52" x2="58" y2="58"/><line x1="12" y1="52" x2="6" y2="58"/><line x1="52" y1="12" x2="58" y2="6"/></g></svg>`;
 }
 
-function weatherName(code){ 
-    const map={0:"Clear",1:"Mainly Clear",2:"Partly Cloudy",3:"Cloudy",45:"Fog",48:"Mist",51:"Drizzle",53:"Drizzle",55:"Drizzle",61:"Rain",63:"Rain",65:"Heavy Rain",71:"Snow",73:"Snow",75:"Heavy Snow",95:"Thunderstorm",96:"Thunderstorm",99:"Thunderstorm"};
-    return map[code]||"Weather"; 
-}
+function weatherName(code){ const map={0:"Clear",1:"Mainly Clear",2:"Partly Cloudy",3:"Cloudy",45:"Fog",48:"Mist",51:"Drizzle",53:"Drizzle",55:"Drizzle",61:"Rain",63:"Rain",65:"Heavy Rain",71:"Snow",73:"Snow",75:"Heavy Snow",95:"Thunderstorm",96:"Thunderstorm",99:"Thunderstorm"}; return map[code]||"Weather"; }
 
-function miniIcon(code){ 
-    if(code===0) return "☀️"; if([1,2].includes(code)) return "🌤️"; if(code===3) return "☁️"; 
-    if([45,48].includes(code)) return "🌫️"; if([51,53,55,61,63,65].includes(code)) return "🌧️"; 
-    if([71,73,75].includes(code)) return "❄️"; if([95,96,99].includes(code)) return "⛈️"; return "☀️"; 
-}
+function miniIcon(code){ if(code===0) return "☀️"; if([1,2].includes(code)) return "🌤️"; if(code===3) return "☁️"; if([45,48].includes(code)) return "🌫️"; if([51,53,55,61,63,65].includes(code)) return "🌧️"; if([71,73,75].includes(code)) return "❄️"; if([95,96,99].includes(code)) return "⛈️"; return "☀️"; }
 
 async function loadWeatherAndForecast(){
     try{
-        const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=auto`);
-        const data=await res.json();
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=auto`);
+        const data = await res.json();
+
         document.getElementById("weatherTemp").innerText=Math.round(data.current_weather.temperature)+"°F";
         const desc=weatherName(data.current_weather.weathercode);
         document.getElementById("weatherDesc").innerText=desc;
@@ -199,16 +174,23 @@ async function loadWeatherAndForecast(){
 loadWeatherAndForecast();
 setInterval(loadWeatherAndForecast,600000);
 
-/* IFRAME REFRESH */
+/* SAFE IFRAME REFRESH */
 const bus=document.getElementById("bus");
 const path=document.getElementById("path");
 const lrt=document.getElementById("lrt");
 const calendar=document.getElementById("calendar");
+
 setInterval(()=>bus.src=bus.src,60000);
 setInterval(()=>path.src=path.src,120000);
 setInterval(()=>lrt.src=lrt.src,300000);
 setInterval(()=>calendar.src=calendar.src,900000);
 
+/* DAILY HARD RELOAD */
+setTimeout(()=>location.reload(true),1000*60*60*24);
+
+/* BURN-IN PREVENTION */
+setInterval(()=>document.body.style.transform=`translate(${Math.random()*2}px,${Math.random()*2}px)`,300000);
 </script>
+
 </body>
 </html>
