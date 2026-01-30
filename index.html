@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Enhanced Commute Dashboard</title>
+<title>Vertical Dashboard</title>
 
 <style>
 :root {
@@ -11,105 +11,96 @@
     --panel-light: rgba(20, 60, 120, 0.9);
     --panel-dark: rgba(8, 20, 60, 0.95);
     --text-main: #ffffff;
-    --alert-delay: #ff4d4d;
-    --alert-warning: #ffd24d;
-    --alert-ok: #3bff3b;
 }
 
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
     background: var(--bg-light);
     color: var(--text-main);
     transition: background 0.6s ease;
     overflow: hidden;
+    width:1080px;
+    height:1920px;
 }
 
-body.theme-dark {
-    background: var(--bg-dark);
-}
+/* DARK THEME */
+body.theme-dark { background: var(--bg-dark); }
 
 /* TOP BAR */
 #top {
     background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1350&q=80") center/cover no-repeat;
-    padding: 20px 30px;
+    padding: 20px;
     display: flex;
-    justify-content: space-between;
-    color: white;
+    flex-direction: column;
+    text-align: center;
     text-shadow: 0 1px 6px rgba(0,0,0,0.5);
 }
 
 #clock { font-size: 4em; font-weight: 300; }
 #date { font-size: 1.5em; margin-top: -6px; }
-#topRight { display: flex; gap: 20px; align-items: flex-start; }
+
+#topRight {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
 
 #weatherBox { text-align: center; }
-#weatherTemp { font-size: 2.2em; font-weight: 600; }
-#weatherIcon svg { width: 60px; height: 60px; opacity: 0; animation: fadeWeather 0.8s ease forwards; }
-@keyframes fadeWeather { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+#weatherTemp { font-size: 2em; font-weight: 600; }
+#weatherIcon svg { width: 60px; height: 60px; opacity:0; animation: fadeWeather 0.8s forwards; }
 .sun-rays { stroke:#ffcc33; stroke-width:2; stroke-linecap:round; animation: spinSun 18s linear infinite; transform-origin:32px 32px; }
+
+@keyframes fadeWeather { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
 @keyframes spinSun { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
+/* FORECAST */
 #forecastSidebar {
     background: rgba(0,0,0,0.25);
-    padding: 10px;
+    padding: 8px;
     border-radius: 10px;
     backdrop-filter: blur(6px);
     font-size: 0.85em;
-    min-width: 160px;
 }
 
-.forecast-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-
-/* MAIN GRID */
+/* MAIN PANELS */
 #main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 15px;
-    padding: 15px;
-    height: calc(100vh - 150px);
+    padding: 10px;
+    height: calc(100% - 250px); /* leave space for top bar */
+    overflow-y: auto;
 }
 
 .panel {
     background: var(--panel-light);
     backdrop-filter: blur(8px);
     border-radius: 12px;
-    padding: 15px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    opacity: 0;
-    transform: translateY(10px);
-    animation: panelFade 1s forwards;
+    flex: 1;
 }
 
 body.theme-dark .panel { background: var(--panel-dark); }
 
-.panel h2 { margin:0 0 10px; border-bottom:1px solid rgba(255,255,255,0.25); padding-bottom:8px; }
+.panel h2 { margin:0 0 10px; border-bottom:1px solid rgba(255,255,255,0.25); padding-bottom:5px; font-size:1.3em; }
 
-/* IFRAME STYLING */
 iframe {
     border:none;
     width:100%;
     flex:1;
-    border-radius:8px;
+    border-radius:6px;
     background:transparent !important;
     overflow:hidden;
 }
 
-/* PANEL ANIMATION */
-@keyframes panelFade { to {opacity:1; transform:translateY(0);} }
-
-/* WEATHER ANIMATION ADDITIONS */
-.cloud { fill:#d1d5db; animation: driftCloud 20s linear infinite; }
-@keyframes driftCloud { 0% {transform:translateX(-10px);} 50% {transform:translateX(10px);} 100% {transform:translateX(-10px);} }
-.rain { stroke:#3b82f6; stroke-width:3; stroke-linecap:round; animation: rainDrop 1s infinite; }
-@keyframes rainDrop { 0% {transform:translateY(0);} 50% {transform:translateY(5px);} 100% {transform:translateY(0);} }
-
-/* ALERTS (Transit color-coding) */
-.alert-ok { color: var(--alert-ok); font-weight:600; }
-.alert-warning { color: var(--alert-warning); font-weight:600; }
-.alert-delay { color: var(--alert-delay); font-weight:600; }
+/* PANEL FADE */
+.panel { opacity:0; transform: translateY(10px); animation: panelFade 1s forwards; }
+@keyframes panelFade { to{opacity:1; transform:translateY(0);} }
 
 </style>
 </head>
@@ -118,10 +109,8 @@ iframe {
 
 <!-- TOP BAR -->
 <div id="top">
-    <div>
-        <div id="clock">--:--</div>
-        <div id="date">Loading…</div>
-    </div>
+    <div id="clock">--:--</div>
+    <div id="date">Loading…</div>
     <div id="topRight">
         <div id="weatherBox">
             <div id="weatherIcon"></div>
@@ -135,7 +124,7 @@ iframe {
     </div>
 </div>
 
-<!-- MAIN GRID -->
+<!-- PANELS -->
 <div id="main">
     <div class="panel">
         <h2>Transit (Bus / PATH / Light Rail)</h2>
@@ -152,31 +141,29 @@ iframe {
 </div>
 
 <script>
-/* ===== THEME SWITCH ===== */
+/* THEME */
 function applyTheme() {
     const hour = new Date().getHours();
-    document.body.className = (hour >= 7 && hour < 19) ? "theme-light" : "theme-dark";
+    document.body.className = (hour>=7 && hour<19) ? "theme-light" : "theme-dark";
 }
 applyTheme();
-setInterval(applyTheme, 600000);
+setInterval(applyTheme,600000);
 
-/* ===== CLOCK ===== */
-function updateClock() {
-    const now = new Date();
-    document.getElementById("clock").innerText = now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
-    document.getElementById("date").innerText = now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+/* CLOCK */
+function updateClock(){
+    const now=new Date();
+    document.getElementById("clock").innerText=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+    document.getElementById("date").innerText=now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
 }
 updateClock();
 setInterval(updateClock,1000);
 
-/* ===== WEATHER ===== */
-const LAT = 40.78467, LON=-74.03010;
-
+/* WEATHER */
+const LAT=40.78467,LON=-74.03010;
 function iconSvg(main){
-    main = main.toLowerCase();
+    main=main.toLowerCase();
     if(main.includes("cloud")) return `<svg viewBox="0 0 64 64"><ellipse class="cloud" cx="30" cy="32" rx="20" ry="12"/></svg>`;
     if(main.includes("rain")) return `<svg viewBox="0 0 64 64"><ellipse class="cloud" cx="30" cy="28" rx="18" ry="10"/><line class="rain" x1="24" y1="40" x2="24" y2="52"/></svg>`;
-    if(main.includes("snow")) return `<svg viewBox="0 0 64 64"><ellipse class="cloud" cx="30" cy="28" rx="18" ry="10"/><text x="32" y="48" font-size="12" fill="#fff" text-anchor="middle">*</text></svg>`;
     return `<svg viewBox="0 0 64 64"><circle class="sun-core" cx="32" cy="32" r="12"/><g class="sun-rays"><line x1="32" y1="8" x2="32" y2="0"/><line x1="32" y1="64" x2="32" y2="56"/><line x1="8" y1="32" x2="0" y2="32"/><line x1="64" y1="32" x2="56" y2="32"/><line x1="12" y1="12" x2="6" y2="6"/><line x1="52" y1="52" x2="58" y2="58"/><line x1="12" y1="52" x2="6" y2="58"/><line x1="52" y1="12" x2="58" y2="6"/></g></svg>`;
 }
 
@@ -193,9 +180,8 @@ function miniIcon(code){
 
 async function loadWeatherAndForecast(){
     try{
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=auto`);
-        const data = await res.json();
-
+        const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=auto`);
+        const data=await res.json();
         document.getElementById("weatherTemp").innerText=Math.round(data.current_weather.temperature)+"°F";
         const desc=weatherName(data.current_weather.weathercode);
         document.getElementById("weatherDesc").innerText=desc;
@@ -213,24 +199,16 @@ async function loadWeatherAndForecast(){
 loadWeatherAndForecast();
 setInterval(loadWeatherAndForecast,600000);
 
-/* ===== SAFE IFRAME REFRESH ===== */
+/* IFRAME REFRESH */
 const bus=document.getElementById("bus");
 const path=document.getElementById("path");
 const lrt=document.getElementById("lrt");
 const calendar=document.getElementById("calendar");
-
 setInterval(()=>bus.src=bus.src,60000);
 setInterval(()=>path.src=path.src,120000);
 setInterval(()=>lrt.src=lrt.src,300000);
 setInterval(()=>calendar.src=calendar.src,900000);
 
-/* DAILY HARD RELOAD */
-setTimeout(()=>location.reload(true),1000*60*60*24);
-
-/* BURN-IN PREVENTION */
-setInterval(()=>document.body.style.transform=`translate(${Math.random()*2}px,${Math.random()*2}px)`,300000);
-
 </script>
-
 </body>
 </html>
